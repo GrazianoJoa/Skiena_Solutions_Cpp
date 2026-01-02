@@ -26,7 +26,7 @@ The structure of the repository generally follows the organization of the book (
 
 ## 💻 Languages & Tools
 
-- **Primary language:** C++  
+- **Primary language:** C++ / C 
 - Standard libraries only (unless stated otherwise)
 - Developed and tested on Linux
 
