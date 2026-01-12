@@ -7,8 +7,25 @@ struct Stack {
     size_t size;
 };
 
+
+// PRIVATE METHODS
+
+static StackStatus stack_resize(Stack* s, size_t new_capacity) {
+    if (!s) return STACK_ERR_NULL;
+
+    if (new_capacity == 0) return STACK_ERR_ALLOC_MEM;
+
+    void* tmp = realloc(s->data, new_capacity * s->elem_size);
+
+    if (!tmp) return STACK_ERR_ALLOC_MEM;
+
+    s->data = tmp;
+    s->capacity = new_capacity;
+    return STACK_OK;
+}
+
 // PUBLIC METHODS
-Stack* stack_create(size_t capacity, size_t elem_size) {
+Stack* stack_create(size_t elem_size, size_t capacity) {
     if (capacity == 0 || elem_size == 0) return NULL;
 
     Stack* s = malloc(sizeof(Stack));
@@ -29,15 +46,13 @@ Stack* stack_create(size_t capacity, size_t elem_size) {
     return s;
 }
 
-StackStatus stack_delete(Stack** s) {
-    if (!s || !*s) return STACK_ERR_NULL;
+void stack_destroy(Stack** s) {
+    if (!s || !*s) return;
 
     free((*s)->data);
     free(*s);
 
     *s = NULL;
-
-    return STACK_OK;
 }
 
 StackStatus stack_push(Stack* s, const void* elem) {
@@ -56,24 +71,26 @@ StackStatus stack_push(Stack* s, const void* elem) {
     return STACK_OK;
 }
 
-StackStatus stack_pop(Stack* s, void* poped_elem) {
-    if (!s || !poped_elem) return STACK_ERR_NULL;
+StackStatus stack_pop(Stack* s, void* pop) {
+    if (!s) return STACK_ERR_NULL;
+    if (!pop) return STACK_ERR_INVALID_ARG;
 
-    if (stack_is_empty(s)) return STACK_ERR_IS_EMPTY;
+    if (stack_is_empty(s)) return STACK_ERR_EMPTY;
 
     s->size--;
 
-    memcpy(poped_elem, (char*)s->data + s->size * s->elem_size, s->elem_size);
+    memcpy(pop, (char*)s->data + s->size * s->elem_size, s->elem_size);
     
     return STACK_OK;
 }
 
-StackStatus stack_peek(Stack* s, void* peek_elem) {
-    if (!s || !peek_elem) return STACK_ERR_NULL;
+StackStatus stack_peek(Stack* s, void* peek) {
+    if (!s) return STACK_ERR_NULL;
+    if (!peek) return STACK_ERR_INVALID_ARG;
 
-    if (stack_is_empty(s)) return STACK_ERR_IS_EMPTY;
+    if (stack_is_empty(s)) return STACK_ERR_EMPTY;
 
-    memcpy(peek_elem, (char*)s->data + (s->size-1) * s->elem_size, s->elem_size);
+    memcpy(peek, (char*)s->data + (s->size-1) * s->elem_size, s->elem_size);
 
     return STACK_OK;
 }
@@ -82,18 +99,3 @@ bool stack_is_empty(const Stack* s) {
     return s == NULL || s->size == 0;
 }
 
-// PRIVATE METHODS
-
-static StackStatus stack_resize(Stack* s, size_t new_capacity) {
-    if (!s) return STACK_ERR_NULL;
-
-    if (new_capacity == 0) return STACK_ERR_ALLOC_MEM;
-
-    void* tmp = realloc(s->data, new_capacity * s->elem_size);
-
-    if (!tmp) return STACK_ERR_ALLOC_MEM;
-
-    s->data = tmp;
-    s->capacity = new_capacity;
-    return STACK_OK;
-}
