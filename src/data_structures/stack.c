@@ -25,6 +25,7 @@ static StackStatus stack_resize(Stack* s, size_t new_capacity) {
 }
 
 // PUBLIC METHODS
+
 Stack* stack_create(size_t elem_size, size_t capacity) {
     if (capacity == 0 || elem_size == 0) return NULL;
 

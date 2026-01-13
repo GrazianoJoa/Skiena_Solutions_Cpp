@@ -2,15 +2,13 @@
 
 TestContext test_ctx = {0, 0, 0, 0};
 
-void stack_test(void);
-
-TEST(my_test) {
-   ASSERT_TRUE(4 == 4);
-   ASSERT_TRUE(4 > 4);
-}
+void stack_test_create_destroy(void);
+void stack_test_push_peek(void);
+void stack_test_pop_empty(void);
 
 int main() {
-   RUN_TEST(my_test);
-   RUN_TEST(stack_test);
+   RUN_TEST(stack_test_create_destroy);
+   RUN_TEST(stack_test_push_peek);
+   RUN_TEST(stack_test_pop_empty);
    test_report();
 }
