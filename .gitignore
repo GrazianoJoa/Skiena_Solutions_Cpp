@@ -43,4 +43,5 @@ a.out
 *.tmp
 *.log
 
+.cache
 compile_commands.json
