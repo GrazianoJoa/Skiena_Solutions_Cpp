@@ -1,4 +1,5 @@
 #include "stack.h"
+#include <stdio.h>
 
 struct Stack {
     void* data;

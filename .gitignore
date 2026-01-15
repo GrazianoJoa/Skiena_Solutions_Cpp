@@ -42,3 +42,5 @@ a.out
 *.swp
 *.tmp
 *.log
+
+compile_commands.json
