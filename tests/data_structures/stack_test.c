@@ -1,7 +1,7 @@
 #include "test.h"
 #include "stack.h"
 
-TEST(stack_test_create_destroy) {
+TEST(t_stack_test_create_destroy) {
    Stack* s1 = stack_create(sizeof(int), 4);
    ASSERT_TRUE(s1 != NULL);
 
@@ -9,7 +9,7 @@ TEST(stack_test_create_destroy) {
    ASSERT_TRUE(s1 == NULL);
 }
 
-TEST(stack_test_push_peek) {
+TEST(t_stack_test_push_peek) {
    Stack* s1 = stack_create(sizeof(int), 2);
    int x = 0;
    int y;
@@ -21,7 +21,7 @@ TEST(stack_test_push_peek) {
    }
 }
 
-TEST(stack_test_pop_empty) {
+TEST(t_stack_test_pop_empty) {
    Stack* s1 = stack_create(sizeof(long), 4);
    long x = 0;
    for (size_t i = 0; i < 10; i++) {
