@@ -17,6 +17,7 @@ extern TestContext test_ctx;
 #define TEST(name) void name(void)
 
 #define RUN_TEST(test) do { \
+   printf("Running test: %s\n", #test); \
    test_ctx.current_test = #test; \
    test_ctx.tests_run++; \
    test(); \
