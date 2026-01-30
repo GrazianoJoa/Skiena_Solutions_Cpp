@@ -1,6 +1,9 @@
 #include "hash_map.h"
 #include "utils.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 typedef struct Node{
     void* value;
     char* key;
@@ -106,12 +109,13 @@ HashMapStatus hash_map_insert(HashMap* hp, const char* key, void* value) {
 
     Node* new_node = malloc(sizeof(Node));
     if (!new_node) return HASH_MAP_ERR_ALLOC_MEM;
-    
-    new_node->key = strdup(key);
+
+    new_node->key = malloc(strlen(key) + 1);
     if (!new_node->key) {
         free(new_node);
         return HASH_MAP_ERR_ALLOC_MEM;  
     }
+    strcpy(new_node->key, key);
 
     new_node->value = malloc(hp->elem_size);
     if (!new_node->value) {
@@ -132,7 +136,7 @@ HashMapStatus hash_map_insert(HashMap* hp, const char* key, void* value) {
     return HASH_MAP_OK;
 }
 
-HashMapStatus hash_map_get(HashMap *hp, const char *key, void** out) {
+HashMapStatus hash_map_get(HashMap *hp, const char *key, void* out) {
     if (!hp || !key || !out) return HASH_MAP_ERR_NULL;
 
     if (key[0] == '\0') return HASH_MAP_ERR_INVALID_ARG;
@@ -142,7 +146,11 @@ HashMapStatus hash_map_get(HashMap *hp, const char *key, void** out) {
     Node* curr = hp->list[index];
     while (curr) {
         if (strcmp(key, curr->key) == 0) {
-            *out = curr->value;
+            if (hp->copy) {
+              hp->copy(out, curr->value);
+            } else {
+              memcpy(out, curr->value, hp->elem_size);
+            }
             return HASH_MAP_OK;
         }
         curr = curr->next;

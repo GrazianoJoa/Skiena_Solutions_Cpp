@@ -1,4 +1,6 @@
 #include "binary_search_tree.h"
+#include <stdio.h>
+#include <string.h>
 
 typedef struct Node {
     void* elem;

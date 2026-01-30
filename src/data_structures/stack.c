@@ -1,4 +1,5 @@
 #include "stack.h"
+#include "utils.h"
 #include <stdio.h>
 
 struct Stack {
@@ -6,6 +7,9 @@ struct Stack {
     size_t elem_size;
     size_t capacity;
     size_t size;
+
+    copy_fn copy;
+    destroy_fn destroy;
 };
 
 
@@ -27,7 +31,7 @@ static StackStatus stack_resize(Stack* s, size_t new_capacity) {
 
 // PUBLIC METHODS
 
-Stack* stack_create(size_t elem_size, size_t capacity) {
+Stack* stack_create(size_t elem_size, size_t capacity, copy_fn copy, destroy_fn destroy) {
     if (capacity == 0 || elem_size == 0) return NULL;
 
     Stack* s = malloc(sizeof(Stack));
@@ -45,28 +49,43 @@ Stack* stack_create(size_t elem_size, size_t capacity) {
     s->elem_size = elem_size;
     s->size = 0;
 
+    s->copy = copy;
+    s->destroy = destroy;
+
     return s;
 }
 
 void stack_destroy(Stack** s) {
     if (!s || !*s) return;
 
+    if ((*s)->destroy) {
+      for (size_t i = 0; i < (*s)->size; i++) {
+        (*s)->destroy((char*)(*s)->data + i * (*s)->elem_size);
+      }
+    } 
     free((*s)->data);
     free(*s);
 
     *s = NULL;
 }
 
-StackStatus stack_push(Stack* s, const void* elem) {
-    if (!s || !elem) return STACK_ERR_NULL;
+StackStatus stack_push(Stack* s, void* elem) {
+    if (!s) return STACK_ERR_NULL;
+    if (!elem && !s->copy) return STACK_ERR_INVALID_ARG;
 
     if (s->size == s->capacity) {
-        if (stack_resize(s, s->capacity*2) == STACK_ERR_ALLOC_MEM) {
+        if (stack_resize(s, s->capacity*2) != STACK_OK) {
             return STACK_ERR_ALLOC_MEM;
         }
     }
 
-    memcpy((char*)s->data + s->size * s->elem_size, elem, s->elem_size );
+    char* src = (char*)s->data + s->size * s->elem_size;
+
+    if (s->copy) {
+      s->copy(src, elem);
+    } else {
+      memcpy(src, elem, s->elem_size);
+    }
 
     s->size++;
 
@@ -75,14 +94,25 @@ StackStatus stack_push(Stack* s, const void* elem) {
 
 StackStatus stack_pop(Stack* s, void* pop) {
     if (!s) return STACK_ERR_NULL;
-    if (!pop) return STACK_ERR_INVALID_ARG;
 
     if (stack_is_empty(s)) return STACK_ERR_EMPTY;
 
     s->size--;
 
-    memcpy(pop, (char*)s->data + s->size * s->elem_size, s->elem_size);
-    
+    char* src = (char*)s->data + s->size * s->elem_size;
+  
+    if (pop) {
+      if (s->copy) {
+        s->copy(pop, src);
+      } else {
+        memcpy(pop, src, s->elem_size);
+      }
+    }
+
+    if (s->destroy) {
+      s->destroy(src);
+    }
+
     return STACK_OK;
 }
 
@@ -92,7 +122,13 @@ StackStatus stack_peek(Stack* s, void* peek) {
 
     if (stack_is_empty(s)) return STACK_ERR_EMPTY;
 
-    memcpy(peek, (char*)s->data + (s->size-1) * s->elem_size, s->elem_size);
+    char* src = (char*)s->data + (s->size -1) * s->elem_size;
+
+    if (s->copy) {
+      s->copy(peek, src);
+    } else {
+      memcpy(peek, src, s->elem_size);
+    }
 
     return STACK_OK;
 }

@@ -1,27 +1,28 @@
-# Compilador y flags
+
 CC = gcc
-CFLAGS = -Iinclude -Wall -Wextra -g
+CFLAGS = -Iinclude -Itests -Wall -Wextra -g
 
-# Archivos fuente
 SRC = src/data_structures/stack.c \
-	  src/data_structures/linked_list.c \
-	  src/data_structures/utils.c
+      src/data_structures/linked_list.c \
+      src/data_structures/binary_search_tree.c \
+			src/data_structures/hash_map.c \
+			src/data_structures/comparator.c \
+			src/data_structures/utils.c
 
-# Archivos de tests
-TESTS = tests/test.c \
-		tests/data_structures/linked_list_test.c
+TESTS = tests/test.c
 
-# Archivo ejecutable
+OBJ = $(SRC:.c=.o) $(TESTS:.c=.o)
+
 TARGET = run_tests
 
-# Regla principal
 all: $(TARGET)
 
-# Compilación de todos los archivos
-$(TARGET): $(SRC) $(TESTS)
-	$(CC) $(CFLAGS) $(SRC) $(TESTS) -o $(TARGET)
+$(TARGET): $(OBJ)
+	$(CC) $(OBJ) -o $(TARGET)
 
-# Limpiar archivos compilados
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGET) $(OBJ)
 

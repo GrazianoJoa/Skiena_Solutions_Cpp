@@ -18,10 +18,10 @@ typedef struct HashMap HashMap;
 
 typedef size_t (*hash_fn)(HashMap* hp, const char* key);
 
-HashMap* hash_map_create(size_t elem_size, size_t size, hash_fn hash, copy_fn copy, destroy_fn destroy);
+HashMap* hash_map_create(size_t elem_size, size_t capacity, hash_fn hash, copy_fn copy, destroy_fn destroy);
 void hash_map_destroy(HashMap** hp);
 HashMapStatus hash_map_insert(HashMap* hp, const char* key, void* value);
-HashMapStatus hash_map_get(HashMap* hp, const char* key, void** out);
+HashMapStatus hash_map_get(HashMap* hp, const char* key, void* out);
 bool hash_map_contains(HashMap* hp, const char* key);
 
 #endif
